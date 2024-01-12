@@ -9,7 +9,7 @@ const nanoId = require("nanoid");
  * const contactsPath = ;
  */
 
-const contactsPath = path.join(__dirname, "contacts.json");
+const contactsPath = path.join("db", "contacts.json");
 // TODO: задокументувати кожну функцію
 const listContacts = async () => {
   const data = await fs.readFile(contactsPath);
@@ -24,14 +24,22 @@ const getContactById = async (contactId) => {
   // ...твій код. Повертає об'єкт контакту з таким id. Повертає null, якщо контакт з таким id не знайдений.
 };
 
-function removeContact(contactId) {
+const removeContact = async (contactId) => {
+  const contacts = await listContacts();
+  const index = contacts.findIndex((item) => item.id === contactId);
+  if (index === -1) {
+    return null;
+  }
+  const [result] = contacts.splice(index, 1);
+  await fs.writeFile(contactsPath, JSON.stringify(contacts, null, 2));
+  return result;
   // ...твій код. Повертає об'єкт видаленого контакту. Повертає null, якщо контакт з таким id не знайдений.
-}
+};
 
 const addContact = async (name, email, phone) => {
   const contacts = await listContacts();
   const newContact = {
-    id,
+    id: nanoId(),
     name,
     email,
     phone,
@@ -42,4 +50,4 @@ const addContact = async (name, email, phone) => {
   // ...твій код. Повертає об'єкт доданого контакту.
 };
 
-module.exports = { listContacts, getContactById, addContact };
+module.exports = { listContacts, getContactById, addContact, removeContact };
